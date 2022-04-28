@@ -1,0 +1,44 @@
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Koha: Reprints Desk Plugin: Configuration</title>
+<link rel="stylesheet" type="text/css" href="[% PLUGIN_PATH %]/reprintsdesk.css"></link>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+<body>
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+
+<div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; <a href="/cgi-bin/koha/plugins/plugins-home.pl">Plugins</a> &rsaquo; Reprints Desk &rsaquo; Configuration</div>
+
+<div id="doc3">
+    <h3 id="reprintsdesk_config_h3">Koha: Reprints Desk: Configuration</h3>
+
+    <form id="reprintsdesk_configure" method="get">
+        <input type="hidden" name="class" value="[% CLASS %]"/>
+        <input type="hidden" name="method" value="[% METHOD %]"/>
+        <div id="reprintsdesk_username" class="ill_config_field">
+            <label for="reprintsdesk_username_input">Username: </label>
+            <input id="reprintsdesk_username_input" placeholder="Enter username" type="text" name="username" value="[% config.username | html %]">
+            <p>The username to be used for accessing the Reprints Desk API</p>
+        </div>
+        <div id="reprintsdesk_password" class="ill_config_field">
+            <label for="reprintsdesk_password_input">Password: </label>
+            <input id="reprintsdesk_password_input" placeholder="Enter password" type="text" name="password" value="[% config.password | html %]">
+            <p>The password to be used for accessing the Reprints Desk API</p>
+        </div>
+
+        <input type="hidden" name="save" value="1" />
+        <input type="submit" value="Save configuration" />
+    </form>
+
+    <hr/>
+
+    <div id="reprintsdesk_upgrade">
+        <h5>Upgrade status</h5>
+        [% IF last_upgraded %]
+            Plugin was last upgraded on this system on [% last_upgraded | $KohaDates with_hours => 1 %]
+        [% ELSE %]
+            Plugin has never been upgraded.
+        [% END %]
+    </div>
+
+[% INCLUDE 'intranet-bottom.inc' %]
