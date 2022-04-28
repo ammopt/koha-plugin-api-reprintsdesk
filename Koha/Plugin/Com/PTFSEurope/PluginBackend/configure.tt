@@ -1,0 +1,101 @@
+[% INCLUDE 'doc-head-open.inc' %]
+<title>Koha: Plugin ILL Backend: Configuration</title>
+<style>
+    #pluginbackend_config_h3 {
+        margin: 20px;
+    }
+
+    #pluginbackend_configure {
+        display: block;
+        margin: 20px;
+    }
+
+    .pluginbackend_config_field {
+        padding: 20px 10px;
+        margin: 20px 0;
+        background: #eee;
+        border-radius: 10px;
+        list-style: none;
+    }
+
+    #pluginbackend_upgrade {
+        margin: 20px;
+    }
+
+    input#pluginbackend_email_input {
+        min-width: 500px;
+    }
+
+    h4.section_header,
+    #submit_button {
+        margin-top: 40px;
+    }
+
+    .ill_config_field {
+        padding: 10px;
+        border-radius: 5px;
+        background: #F4F8F9;
+        margin: 10px 0;
+    }
+
+    .instruction {
+        margin-bottom: 10px;
+    }
+
+</style>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+<body>
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+
+<div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; <a href="/cgi-bin/koha/plugins/plugins-home.pl">Plugins</a> &rsaquo; PluginBackend &rsaquo; Configuration</div>
+
+<div id="doc3">
+
+    <h3 id="pluginbackend_config_h3">Koha: Plugin ILL Backend: Configuration</h3>
+    <form id="pluginbackend_configure" method="get">
+        <input type="hidden" name="class" value="[% CLASS %]"/>
+        <input type="hidden" name="method" value="[% METHOD %]"/>
+        <h4 class="section_header">Plugin ILL Backend</h4>
+        <div id="pluginbackend_username" class="ill_config_field">
+            <label for="pluginbackend_username_input">Username: </label>
+            <input id="pluginbackend_username_input" class="required_input" placeholder="Enter username" type="text" name="username" value="[% config.username | html %]">
+            <p>The username to be used</p>
+        </div>
+        <div id="pluginbackend_password" class="ill_config_field">
+            <label for="pluginbackend_password_input">Password: </label>
+            <input id="pluginbackend_password_input" class="required_input" placeholder="Enter password" type="text" name="password" value="[% config.password | html %]">
+            <p>The password to be used</p>
+        </div>
+        <h4 class="section_header">User configuration</h4>
+        <div id="pluginbackend_useremail" class="ill_config_field">
+            <label for="pluginbackend_useremail_input">User e-mail address: </label>
+            <input id="pluginbackend_useremail_input" class="required_input" placeholder="Enter e-mail address" type="text" name="useremail" value="[% config.useremail | html %]">
+            <p>The user e-mail address - This will be used as a catchall e-mail address to receive notifications regarding the order (order confirmation and shipping notices).</p>
+            <p>Will also be used as username for User_GetOrderHistory and /order/user/username + /order/user/email for Order_PlaceOrder2.</p>
+        </div>
+        <h4 class="section_header">Environment</h4>
+        <div id="pluginbackend_environment" class="ill_config_field">
+            <input type="radio" id="pluginbackend_environment_input_dev" name="environment" value="dev" [% IF config.environment == 'dev' || !config.environment %]checked[% END %]>
+            <label for="pluginbackend_environment_input_dev">Development</label><br>
+            <input type="radio" id="pluginbackend_environment_input_prod" name="environment" value="prod" [% IF config.environment == 'prod' %]checked[% END %]>
+            <label for="pluginbackend_environment_input_prod">Production</label><br>
+        </div>
+
+        <input type="hidden" name="save" value="1" />
+        <input id="submit_button" type="submit" value="Save configuration" />
+    </form>
+
+    <hr/>
+
+    <div id="pluginbackend_upgrade">
+        <h5>Upgrade status</h5>
+        [% IF last_upgraded %]
+            Plugin was last upgraded on this system on [% last_upgraded | $KohaDates with_hours => 1 %]
+        [% ELSE %]
+            Plugin has never been upgraded.
+        [% END %]
+    </div>
+
+[% INCLUDE 'intranet-bottom.inc' %]
