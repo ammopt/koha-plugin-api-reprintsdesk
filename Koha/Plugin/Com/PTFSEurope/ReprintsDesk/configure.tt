@@ -25,6 +25,16 @@
             <input id="reprintsdesk_password_input" placeholder="Enter password" type="text" name="password" value="[% config.password | html %]">
             <p>The password to be used for accessing the Reprints Desk API</p>
         </div>
+        <div id="reprintsdesk_ordertypeid" class="ill_config_field">
+            <label for="reprintsdesk_ordertypeid_input">Order type ID: </label>
+            <input id="reprintsdesk_ordertypeid_input" placeholder="Enter order type ID" type="text" name="ordertypeid" value="[% config.ordertypeid | html %]">
+            <p>The Order Type ID - specify 4 in this field unless advised otherwise</p>
+        </div>
+        <div id="reprintsdesk_deliverymethodid" class="ill_config_field">
+            <label for="reprintsdesk_deliverymethodid_input">Order type ID: </label>
+            <input id="reprintsdesk_deliverymethodid_input" placeholder="Enter delivery method ID" type="text" name="deliverymethodid" value="[% config.deliverymethodid | html %]">
+            <p>The Delivery Method ID - specify 5 in this field unless advised otherwise</p>
+        </div>
 
         <input type="hidden" name="save" value="1" />
         <input type="submit" value="Save configuration" />

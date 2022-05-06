@@ -5,6 +5,7 @@ use strict;
 use warnings;
 
 use File::Basename qw( dirname );
+use XML::LibXML;
 use XML::Compile;
 use XML::Compile::WSDL11;
 use XML::Compile::SOAP12;
@@ -25,6 +26,8 @@ sub PlaceOrder2 {
     my $body = $c->validation->param('body');
 
     my $metadata = $body->{metadata} || {};
+    $metadata->{ordertypeid} = $config->{ordertypeid};
+    $metadata->{deliverymethodid} = $config->{deliverymethodid};
 
     # Base request including passed metadata and credentials
     my $req = {
@@ -87,10 +90,8 @@ sub _make_request {
         }
     };
 
-    use Data::Dumper;
-    print STDERR Dumper $to_send;
-
-    my $response = $client->($to_send);
+    my ($response, $trace) = $client->($to_send);
+    print STDERR Dumper $trace->request;
     my $result = $response->{parameters}->{$response_element} || {};
     my $errors = $response->{error} ? [ $response->{error}->{reason} ] : [];
 
@@ -120,10 +121,14 @@ sub _get_credentials {
     my $plugin = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new();
     my $config = decode_json($plugin->retrieve_data("reprintsdesk_config") || {});
 
-    return {
-        UserName => $config->{username},
-        Password => $config->{password}
-    };
+    my $doc = XML::LibXML::Document->new('1.0', 'UTF-8');
+    my %data = (
+        _doc => $doc,
+        UserName => $doc->createCDATASection($config->{username}),
+        Password => $doc->createCDATASection($config->{password}),
+    );
+
+    return \%data;
 }
 
 1;
