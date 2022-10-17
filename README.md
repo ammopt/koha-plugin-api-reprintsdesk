@@ -19,6 +19,8 @@ This plugin requires the following Perl modules:
 
 [XML::Compile::Transport::SOAPHTTP](https://metacpan.org/dist/XML-Compile-SOAP/view/lib/XML/Compile/Transport/SOAPHTTP.pod)
 
+[XML::Smart](https://metacpan.org/pod/XML::Smart)
+
 Download this plugin by downloading the latest release .kpz file from the [releases page](https://github.com/PTFS-Europe/koha-plugin-api-reprintsdesk/releases).
 
 The plugin system needs to be turned on by a system administrator.
