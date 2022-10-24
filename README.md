@@ -7,6 +7,8 @@ This is a plugin for [Koha](https://koha-community.org/) that allows you to make
 
 This plugin requires the following Perl modules:
 
+[XML::Smart](https://metacpan.org/pod/XML::Smart)
+
 [XML::Compile](https://metacpan.org/pod/XML::Compile)
 
 [XML::Compile::SOAP](https://metacpan.org/pod/XML::Compile::SOAP)
