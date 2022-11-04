@@ -23,7 +23,7 @@ This plugin requires the following Perl modules:
 
 [XML::Smart](https://metacpan.org/pod/XML::Smart)
 
-Download this plugin by downloading the latest release .kpz file from the [releases page](https://github.com/PTFS-Europe/koha-plugin-api-reprintsdesk/releases).
+Clone this repo and create the .kpz file: `zip -r koha-plugin-api-reprintsdesk.kpz Koha/`
 
 The plugin system needs to be turned on by a system administrator.
 
@@ -32,7 +32,6 @@ To set up the Koha plugin system you must first make some changes to your instal
 Change `<enable_plugins>0<enable_plugins>` to `<enable_plugins>1</enable_plugins>` in your `koha-conf.xml` file
 Confirm that the path to `<pluginsdir>` exists, is correct, and is writable by the web server.
 Restart your webserver.
-Once set up is complete you will need to alter your `UseKohaPlugins` system preference.
 Finally, on the "Koha Administration" page you will see the "Manage Plugins" option, select this to access the Plugins page.
 
 ### Installing
