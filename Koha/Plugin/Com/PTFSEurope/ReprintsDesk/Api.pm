@@ -178,6 +178,38 @@ sub PlaceOrder2 {
     );
 }
 
+sub GetOrderInfo {
+    use Data::Dumper; $Data::Dumper::Maxdepth = 5;
+    my $c = shift->openapi->valid_input or return;
+
+    my $client = _build_client('Order_GetOrderInfo');
+
+    my $body = $c->validation->param('body');
+
+    my $metadata = $body || {};
+
+    my $smart = XML::Smart->new;
+    $smart->{wrapper} = { inputXmlNode => { input => $metadata  } };
+
+    $smart->{wrapper}->{inputXmlNode}->{input}->{schemaversionid} = '1';
+    $smart->{wrapper}->{inputXmlNode}->{input}->{orderid}->set_tag;
+    $smart->{wrapper}->{inputXmlNode}->{input}->{orderid}->set_cdata;
+
+    my $dom = XML::LibXML->load_xml(string => $smart->data(noheader => 1, nometagen => 1));
+    my @nodes = $dom->findnodes('/wrapper/inputXmlNode');
+
+    my $response = _make_request($client, { inputXmlNode => $nodes[0] }, 'Order_GetOrderInfoResponse');
+
+
+    my $code = scalar @{$response->{errors}} > 0 ? 500 : 200;
+
+    return $c->render(
+        status => $code,
+        openapi => $response
+    );
+
+
+}
 
 sub Account_GetIntendedUses {
     my $c = shift->openapi->valid_input or return;
@@ -263,13 +295,17 @@ sub _populate_missing_properties {
 
 sub _make_request {
     my ($client, $req, $response_element) = @_;
+    use Data::Dumper; $Data::Dumper::Maxdepth = 5;
 
     my $credentials = _get_credentials();
 
     my $to_send = {%{$req}, UserCredentials => {%{$credentials}}};
 
     my ($response, $trace) = $client->($to_send);
-
+warn Dumper($to_send);
+# warn Dumper($to_send->{inputXmlNode}->serialize);
+warn Dumper($response);
+warn Dumper($trace);
     my $result = $response->{parameters} || {};
     my $errors = $response->{error} ? [ { message => $response->{error}->{reason} } ] : [];
 

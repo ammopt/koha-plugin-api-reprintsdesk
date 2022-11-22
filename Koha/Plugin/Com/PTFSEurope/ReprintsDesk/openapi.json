@@ -223,6 +223,41 @@
             }
         }
     },
+    "/getorderinfo": {
+        "post": {
+            "x-mojo-to": "Com::PTFSEurope::ReprintsDesk::Api#GetOrderInfo",
+            "operationId": "ApiReprintsDeskILLGetOrderInfo",
+            "tags": ["reprintsdesk", "getorderinfo"],
+            "parameters": [
+                {
+                    "name": "body",
+                    "in": "body",
+                    "description": "The request payload containing order id",
+                    "required": true,
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "orderid": {
+                                "type": "integer",
+                                "description": "The order id to get info.",
+                                "additionalProperties": false
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [ "orderid" ]
+                    }
+                }
+            ],
+            "produces": [
+                "application/json"
+            ],
+            "responses": {
+                "200": {
+                    "description": "The result of the getorderinfo call"
+                }
+            }
+        }
+    },
     "/account_getintendeduses": {
         "get": {
             "x-mojo-to": "Com::PTFSEurope::ReprintsDesk::Api#Account_GetIntendedUses",
