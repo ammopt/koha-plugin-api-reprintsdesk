@@ -258,6 +258,22 @@
             }
         }
     },
+    "/notyetdownloaded": {
+        "post": {
+            "x-mojo-to": "Com::PTFSEurope::ReprintsDesk::Api#NotYetDownloaded",
+            "operationId": "ApiReprintsDeskILLNotYetDownloaded",
+            "tags": ["reprintsdesk", "notyetdownloaded"],
+            "parameters": [],
+            "produces": [
+                "application/json"
+            ],
+            "responses": {
+                "200": {
+                    "description": "The result of the notyetdownloaded call"
+                }
+            }
+        }
+    },
     "/account_getintendeduses": {
         "get": {
             "x-mojo-to": "Com::PTFSEurope::ReprintsDesk::Api#Account_GetIntendedUses",
