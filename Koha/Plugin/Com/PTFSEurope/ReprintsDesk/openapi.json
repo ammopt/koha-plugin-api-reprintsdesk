@@ -258,6 +258,56 @@
             }
         }
     },
+    "/getpriceestimate": {
+        "post": {
+            "x-mojo-to": "Com::PTFSEurope::ReprintsDesk::Api#GetPriceEstimate",
+            "operationId": "ApiReprintsDeskILLGetPriceEstimate2",
+            "tags": ["reprintsdesk", "getpriceestimate2"],
+            "parameters": [
+                {
+                    "name": "body",
+                    "in": "body",
+                    "description": "The request payload containing order id",
+                    "required": true,
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "standardnumber": {
+                                "type": "integer",
+                                "description": "The standard number to get price estimate.",
+                                "additionalProperties": false
+                            },
+                            "year": {
+                                "type": "integer",
+                                "description": "The publication year.",
+                                "additionalProperties": false
+                            },
+                            "totalpages": {
+                                "type": "integer",
+                                "description": "Total pages.",
+                                "additionalProperties": false
+                            },
+                            "pricetypeid": {
+                                "type": "integer",
+                                "description": "Price type. 1=regular, 2=academic",
+                                "additionalProperties": false
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [ "standardnumber" ]
+                    }
+                }
+            ],
+            "produces": [
+                "application/json"
+            ],
+            "responses": {
+                "200": {
+                    "description": "The result of the getpriceestimate call"
+                }
+            }
+        }
+    },
     "/notyetdownloaded": {
         "post": {
             "x-mojo-to": "Com::PTFSEurope::ReprintsDesk::Api#NotYetDownloaded",
