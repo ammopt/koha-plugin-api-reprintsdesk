@@ -233,19 +233,21 @@ sub GetPriceEstimate2 {
     my $metadata = $body || {};
 
     my $smart = XML::Smart->new;
-    $smart->{wrapper} = { xmlNode => { input => $metadata  } };
+    $smart->{wrapper} = { xmlInput => { input => $metadata  } };
 
-    $smart->{wrapper}->{xmlNode}->{input}->{schemaversionid} = '1';
-    $smart->{wrapper}->{xmlNode}->{input}->{standardnumber}->set_tag;
-    $smart->{wrapper}->{xmlNode}->{input}->{year}->set_tag;
-    $smart->{wrapper}->{xmlNode}->{input}->{totalpages}->set_tag;
-    $smart->{wrapper}->{xmlNode}->{input}->{pricetypeid}->set_tag;
-    $smart->{wrapper}->{xmlNode}->{input}->{xmlns} = '';
+    $smart->{wrapper}->{xmlInput}->{input}->{xmlns} = '';
+
+    $smart->{wrapper}->{xmlInput}->{input}->{schemaversionid} = '1';
+    $smart->{wrapper}->{xmlInput}->{input}->{standardnumber}->set_tag;
+    $smart->{wrapper}->{xmlInput}->{input}->{year}->set_tag;
+    $smart->{wrapper}->{xmlInput}->{input}->{totalpages}->set_tag;
+    $smart->{wrapper}->{xmlInput}->{input}->{pricetypeid}->set_tag;
 
     my $dom = XML::LibXML->load_xml(string => $smart->data(noheader => 1, nometagen => 1));
-    my @nodes = $dom->findnodes('/wrapper/xmlNode');
+    my @nodes = $dom->findnodes('/wrapper/xmlInput');
 
-    my $response = _make_request($client, { xmlNode => $nodes[0] }, '');
+    my $response = _make_request($client, { xmlInput => $nodes[0] }, '');
+
 
     my $code = scalar @{$response->{errors}} > 0 ? 500 : 200;
 
