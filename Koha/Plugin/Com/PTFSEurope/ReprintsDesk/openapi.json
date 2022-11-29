@@ -267,7 +267,7 @@
                 {
                     "name": "body",
                     "in": "body",
-                    "description": "The request payload containing order id",
+                    "description": "The request payload",
                     "required": true,
                     "schema": {
                         "type": "object",
