@@ -221,6 +221,38 @@ sub GetOrderInfo {
         status => $code,
         openapi => $response
     );
+}
+
+sub GetPriceEstimate2 {
+    my $c = shift->openapi->valid_input or return;
+
+    my $client = _build_client('Order_GetPriceEstimate2');
+
+    my $body = $c->validation->param('body');
+
+    my $metadata = $body || {};
+
+    my $smart = XML::Smart->new;
+    $smart->{wrapper} = { xmlNode => { input => $metadata  } };
+
+    $smart->{wrapper}->{xmlNode}->{input}->{schemaversionid} = '1';
+    $smart->{wrapper}->{xmlNode}->{input}->{standardnumber}->set_tag;
+    $smart->{wrapper}->{xmlNode}->{input}->{year}->set_tag;
+    $smart->{wrapper}->{xmlNode}->{input}->{totalpages}->set_tag;
+    $smart->{wrapper}->{xmlNode}->{input}->{pricetypeid}->set_tag;
+    $smart->{wrapper}->{xmlNode}->{input}->{xmlns} = '';
+
+    my $dom = XML::LibXML->load_xml(string => $smart->data(noheader => 1, nometagen => 1));
+    my @nodes = $dom->findnodes('/wrapper/xmlNode');
+
+    my $response = _make_request($client, { xmlNode => $nodes[0] }, '');
+
+    my $code = scalar @{$response->{errors}} > 0 ? 500 : 200;
+
+    return $c->render(
+        status => $code,
+        openapi => $response
+    );
 
 }
 

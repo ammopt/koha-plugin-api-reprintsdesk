@@ -260,7 +260,7 @@
     },
     "/getpriceestimate": {
         "post": {
-            "x-mojo-to": "Com::PTFSEurope::ReprintsDesk::Api#GetPriceEstimate",
+            "x-mojo-to": "Com::PTFSEurope::ReprintsDesk::Api#GetPriceEstimate2",
             "operationId": "ApiReprintsDeskILLGetPriceEstimate2",
             "tags": ["reprintsdesk", "getpriceestimate2"],
             "parameters": [
@@ -273,17 +273,17 @@
                         "type": "object",
                         "properties": {
                             "standardnumber": {
-                                "type": "integer",
+                                "type": "string",
                                 "description": "The standard number to get price estimate.",
                                 "additionalProperties": false
                             },
                             "year": {
-                                "type": "integer",
+                                "type": "string",
                                 "description": "The publication year.",
                                 "additionalProperties": false
                             },
                             "totalpages": {
-                                "type": "integer",
+                                "type": "string",
                                 "description": "Total pages.",
                                 "additionalProperties": false
                             },
