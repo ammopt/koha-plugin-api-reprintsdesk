@@ -246,8 +246,7 @@ sub GetPriceEstimate2 {
     my $dom = XML::LibXML->load_xml(string => $smart->data(noheader => 1, nometagen => 1));
     my @nodes = $dom->findnodes('/wrapper/xmlInput');
 
-    my $response = _make_request($client, { xmlInput => $nodes[0] }, '');
-
+    my $response = _make_request($client, { xmlInput => $nodes[0] }, 'Order_GetPriceEstimate2Response');
 
     my $code = scalar @{$response->{errors}} > 0 ? 500 : 200;
 
@@ -350,6 +349,22 @@ sub _make_request {
     my $credentials = _get_credentials();
 
     my $to_send = {%{$req}, UserCredentials => {%{$credentials}}};
+
+    # This request is to get price estimate, API requires children to be in a specific order
+    if ( $response_element eq 'Order_GetPriceEstimate2Response' ) {
+        my $xml_input = $to_send->{xmlInput};
+        my @input = $xml_input->getChildrenByTagName('input');
+        my @standardnumber = $input[0]->getChildrenByTagName('standardnumber');
+        my @year = $input[0]->getChildrenByTagName('year');
+        my @totalpages = $input[0]->getChildrenByTagName('totalpages');
+        my @pricetypeid = $input[0]->getChildrenByTagName('pricetypeid');
+
+        $input[0]->removeChildNodes;
+        $input[0]->appendChild($standardnumber[0]);
+        $input[0]->appendChild($year[0]);
+        $input[0]->appendChild($totalpages[0]);
+        $input[0]->appendChild($pricetypeid[0]);
+    }
 
     my ($response, $trace) = $client->($to_send);
 
