@@ -350,6 +350,7 @@ sub _make_request {
 
     my $to_send = {%{$req}, UserCredentials => {%{$credentials}}};
 
+    # TODO: Below should be improved and moved into GetPriceEstimate2 after refractoring Smart into LibXML
     # This request is to get price estimate, API requires children to be in a specific order
     if ( $response_element eq 'Order_GetPriceEstimate2Response' ) {
         my $xml_input = $to_send->{xmlInput};
