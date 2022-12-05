@@ -148,6 +148,31 @@ sub PlaceOrder2 {
     my $smart = XML::Smart->new;
     $smart->{wrapper} = { xmlNode => { order => $metadata  } };
 
+    my $node_order = XML::LibXML::Element->new('order');
+
+    # Customer reference
+    my $node_custom_references = XML::LibXML::Element->new( 'customerreferences' );
+    my $node_custom_reference = XML::LibXML::Element->new( 'customerreference' );
+
+    $node_custom_reference->setAttribute( 'id', $metadata->{customerreferences}->{customerreference}->{id} );
+    $node_custom_reference->setAttribute( 'value', $metadata->{customerreferences}->{customerreference}->{value} );
+    $node_custom_references->appendChild( $node_custom_reference );
+
+    # Processing Instructions
+    my $node_processing_instructions = XML::LibXML::Element->new( 'processinginstructions' );
+    my $node_processing_instruction = XML::LibXML::Element->new( 'processinginstruction' );
+
+    $node_processing_instruction->setAttribute( 'id', $metadata->{processinginstructions}->{processinginstruction}->{id} );
+    $node_processing_instruction->setAttribute( 'value', $metadata->{processinginstructions}->{processinginstruction}->{value} );
+    $node_processing_instructions->appendChild( $node_processing_instruction );
+
+
+    $node_order->appendChild( $node_custom_references );
+    $node_order->appendChild( $node_processing_instructions );
+
+
+
+
     # All orderdetail, user, deliveryprofile properties should be elements
     # So we need to force that
     # This also ensures we have elements for each as seemingly the API will
@@ -157,6 +182,20 @@ sub PlaceOrder2 {
         'user'            => ['firstname', 'lastname', 'email', 'username', 'billingreference'],
         'deliveryprofile' => ['firstname', 'lastname', 'companyname', 'address1', 'address2', 'city', 'statecode', 'statename', 'zip', 'countrycode', 'email', 'phone', 'fax']
     };
+
+    foreach my $tag_key(keys %{$to_tag}) {
+        my $node_group = XML::LibXML::Element->new($tag_key);
+        $node_order->appendChild($node_group);
+        foreach my $key(@{$to_tag->{$tag_key}}) {
+            my $node_child = XML::LibXML::Element->new($key);
+            my $node_child_content = XML::LibXML::CDATASection->new( $metadata->{$tag_key}->{$key});
+            $node_child->appendChild($node_child_content);
+            $node_group->appendChild($node_child);
+        }
+    }
+
+
+
     foreach my $tag_key(keys %{$to_tag}) {
         foreach my $key(@{$to_tag->{$tag_key}}) {
             $smart->{order}->{$tag_key}->{$key}->set_tag;
@@ -178,12 +217,17 @@ sub PlaceOrder2 {
         $smart->{wrapper}->{xmlNode}->{order}->{deliveryprofile}->{$cdata}->set_cdata;
     }
 
-    $smart->{wrapper}->{xmlNode}->{order}->{xmlns} = '';
+    $smart->{wrapper}->{xmlNode}->{order}->{"xmlns"} = '';
 
     my $dom = XML::LibXML->load_xml(string => $smart->data(noheader => 1, nometagen => 1));
     my @nodes = $dom->findnodes('/root/wrapper/xmlNode');
 
-    my $response = _make_request($client, { xmlNode => $nodes[0] }, 'Order_PlaceOrder2Response');
+    # use Data::Dumper; $Data::Dumper::Maxdepth = 2;
+    # warn Dumper('ammo');
+    # warn Dumper($nodes[0]->serialize);
+
+    # my $response = _make_request($client, { xmlNode => $nodes[0] }, 'Order_PlaceOrder2Response');
+    my $response = _make_request($client, "tns:xmlNode", $node_order, 'Order_PlaceOrder2Response');
 
     my $code = scalar @{$response->{errors}} > 0 ? 500 : 200;
 
@@ -344,11 +388,13 @@ sub _populate_missing_properties {
 
 
 sub _make_request {
-    my ($client, $req, $response_element) = @_;
+    # my ($client, $req, $response_element) = @_;
+    my ($client, $root_el, $req, $response_element) = @_;
 
     my $credentials = _get_credentials();
 
-    my $to_send = {%{$req}, UserCredentials => {%{$credentials}}};
+    # my $to_send = {%{$req}, UserCredentials => {%{$credentials}}};
+    my $to_send = {$root_el => $req , UserCredentials => {%{$credentials}}};
 
     # TODO: Below should be improved and moved into GetPriceEstimate2 after refractoring Smart into LibXML
     # This request is to get price estimate, API requires children to be in a specific order
@@ -369,6 +415,14 @@ sub _make_request {
 
     my ($response, $trace) = $client->($to_send);
 
+
+    use Data::Dumper; $Data::Dumper::Maxdepth = 5;
+    warn Dumper('ammo');
+    warn Dumper($to_send);
+    warn Dumper($response->{response_dom});
+    warn Dumper($trace);
+
+
     my $result = $response->{parameters} || {};
     my $errors = $response->{error} ? [ { message => $response->{error}->{reason} } ] : [];
 
@@ -388,13 +442,18 @@ sub _build_client {
         $wsdl_file,
         # The API has a fit if some of the elements are correctly prefixed
         # so override the prefixing.
-        prefixes => { '' => 'http://reprintsdesk.com/webservices/' }
+        # prefixes => { '' => 'http://reprintsdesk.com/webservices/' }
+        # prefixes => { '' => 'http://reprintsdesk.com/webservices/' }
     );
 
     my $client = $wsdl->compileClient(
         operation => $operation,
         port      => "MainSoap"
     );
+
+        use Data::Dumper; $Data::Dumper::Maxdepth = 5;
+    warn Dumper('client');
+    warn Dumper($client);
 
     return $client;
 }
