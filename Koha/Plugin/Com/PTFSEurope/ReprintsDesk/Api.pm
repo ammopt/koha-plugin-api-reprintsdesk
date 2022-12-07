@@ -196,11 +196,11 @@ sub PlaceOrder2 {
 sub GetOrderInfo {
     my $c = shift->openapi->valid_input or return;
 
-    my $client = _build_client('Order_GetOrderInfo');
-
     my $body = $c->validation->param('body');
 
     my $metadata = $body || {};
+
+    my $client = _build_client('Order_GetOrderInfo');
 
     my $smart = XML::Smart->new;
     $smart->{wrapper} = { inputXmlNode => { input => $metadata  } };
@@ -226,11 +226,11 @@ sub GetOrderInfo {
 sub GetPriceEstimate2 {
     my $c = shift->openapi->valid_input or return;
 
-    my $client = _build_client('Order_GetPriceEstimate2');
-
     my $body = $c->validation->param('body');
 
     my $metadata = $body || {};
+
+    my $client = _build_client('Order_GetPriceEstimate2');
 
     my $smart = XML::Smart->new;
     $smart->{wrapper} = { xmlInput => { input => $metadata  } };
@@ -247,6 +247,46 @@ sub GetPriceEstimate2 {
     my @nodes = $dom->findnodes('/wrapper/xmlInput');
 
     my $response = _make_request($client, { xmlInput => $nodes[0] }, 'Order_GetPriceEstimate2Response');
+
+    my $code = scalar @{$response->{errors}} > 0 ? 500 : 200;
+
+    return $c->render(
+        status => $code,
+        openapi => $response
+    );
+}
+
+sub CreateBatch {
+    my $c = shift->openapi->valid_input or return;
+
+    my $body = $c->validation->param('body');
+
+    my $plugin = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new();
+    my $config = decode_json($plugin->retrieve_data("reprintsdesk_config") || {});
+
+    my $metadata = $body || {};
+
+    my $client = _build_client('Batch_CreateBatch');
+
+    my $smart = XML::Smart->new;
+
+    $smart->{wrapper}->{inputXmlNode}->{batch}->{xmlns} = '';
+
+    $smart->{wrapper}->{inputXmlNode}->{batch}->{batchdetail}->{batchname} = 'batchname';
+    $smart->{wrapper}->{inputXmlNode}->{batch}->{batchdetail}->{batchname}->set_tag;
+    $smart->{wrapper}->{inputXmlNode}->{batch}->{batchdetail}->{batchname}->set_cdata;
+
+    $smart->{wrapper}->{inputXmlNode}->{batch}->{batchdetail}->{billinggroupid} = '1';
+    $smart->{wrapper}->{inputXmlNode}->{batch}->{batchdetail}->{billinggroupid}->set_tag;
+
+    # $smart->{wrapper}->{inputXmlNode}->{batch}->{user}->{username} = $config->{username};
+    $smart->{wrapper}->{inputXmlNode}->{batch}->{user}->{username} = 'wstest@reprintsdesk.fake';
+    $smart->{wrapper}->{inputXmlNode}->{batch}->{user}->{username}->set_tag;
+
+    my $dom = XML::LibXML->load_xml(string => $smart->data(noheader => 1, nometagen => 1));
+    my @nodes = $dom->findnodes('/wrapper/inputXmlNode');
+
+    my $response = _make_request($client, { inputXmlNode => $nodes[0] }, 'Batch_CreateBatchResponse');
 
     my $code = scalar @{$response->{errors}} > 0 ? 500 : 200;
 
