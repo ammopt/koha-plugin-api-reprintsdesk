@@ -353,18 +353,72 @@
             }
         }
     },
-    "/notyetdownloaded": {
+    "/articleshelf": {
         "post": {
-            "x-mojo-to": "Com::PTFSEurope::ReprintsDesk::Api#NotYetDownloaded",
-            "operationId": "ApiReprintsDeskILLNotYetDownloaded",
-            "tags": ["reprintsdesk", "notyetdownloaded"],
-            "parameters": [],
+            "x-mojo-to": "Com::PTFSEurope::ReprintsDesk::Api#ArticleShelf",
+            "operationId": "ApiReprintsDeskILLArticleShelf",
+            "tags": ["reprintsdesk", "articleshelf"],
+            "parameters": [
+                {
+                    "name": "body",
+                    "in": "body",
+                    "description": "The articleshelf payload",
+                    "required": true,
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "batch_id": {
+                                "type": "integer",
+                                "description": "The id of the batch.",
+                                "additionalProperties": false
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [ "batch_id" ]
+                    }
+                }
+            ],
             "produces": [
                 "application/json"
             ],
             "responses": {
                 "200": {
-                    "description": "The result of the notyetdownloaded call"
+                    "description": "The result of the articleshelf call"
+                }
+            }
+        }
+    },
+    "/checkavailability": {
+        "post": {
+            "x-mojo-to": "Com::PTFSEurope::ReprintsDesk::Api#CheckAvailability",
+            "operationId": "ApiReprintsDeskILLCheckAvailability",
+            "tags": ["reprintsdesk", "checkavailability"],
+            "parameters": [
+                {
+                    "name": "body",
+                    "in": "body",
+                    "description": "The articleshelf payload",
+                    "required": true,
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "batch_id": {
+                                "type": "integer",
+                                "description": "The id of the batch.",
+                                "additionalProperties": false
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [ "batch_id" ]
+                    }
+                }
+            ],
+            "produces": [
+                "application/json"
+            ],
+            "responses": {
+                "200": {
+                    "description": "The result of the checkavailability call"
                 }
             }
         }

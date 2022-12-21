@@ -297,20 +297,137 @@ sub CreateBatch {
 
 }
 
-sub NotYetDownloaded {
+sub ArticleShelf {
     my $c = shift->openapi->valid_input or return;
 
-    my $client = _build_client('Orders_NotYetDownloaded');
+    my $body = $c->validation->param('body');
 
-    my $response = _make_request($client, { }, 'Order_GetOrderInfoResponse');
+    my $plugin = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new();
+    my $config = decode_json($plugin->retrieve_data("reprintsdesk_config") || {});
+    my $metadata = $body || {};
+
+    my $client = _build_client('ArticleShelf_CheckAvailability');
+
+    my $smart = XML::Smart->new;
+
+    $smart->{wrapper}->{inputXmlNode}->{input}->{schemaversionid} = '1';
+    $smart->{wrapper}->{inputXmlNode}->{input}->{xmlns} = '';
+
+    my @ill_requests = Koha::Illrequests->search({ batch_id => $metadata->{batch_id} })->as_list;
+
+    # For each request in this batch, add DOI to the XML payload
+    foreach my $ill_request(@ill_requests) {
+        my $doi = $ill_request->illrequestattributes->find({
+            illrequest_id => $ill_request->illrequest_id,
+            type          => "doi"
+        });
+        if( $doi ) {
+            my $new_citation = {
+                doi      => $doi->value
+            } ;
+            push(@{$smart->{wrapper}->{inputXmlNode}->{input}->{citations}->{citation}} , $new_citation) ;
+        }
+    }
+
+    foreach my $citation(@{$smart->{wrapper}->{inputXmlNode}->{input}->{citations}->{citation}}) {
+        $citation->{doi}->set_tag;
+        $citation->{doi}->set_cdata;
+    }
+
+    my $dom = XML::LibXML->load_xml(string => $smart->data(noheader => 1, nometagen => 1));
+    my @nodes = $dom->findnodes('/wrapper/inputXmlNode');
+
+    my $response = _make_request($client, { inputXmlNode => $nodes[0] }, 'ArticleShelf_CheckAvailabilityResponse');
+
     my $code = scalar @{$response->{errors}} > 0 ? 500 : 200;
 
     return $c->render(
         status => $code,
         openapi => $response
     );
+}
+
+sub CheckAvailability {
+    my $c = shift->openapi->valid_input or return;
+
+    my $body = $c->validation->param('body');
+
+    my $plugin = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new();
+    my $config = decode_json($plugin->retrieve_data("reprintsdesk_config") || {});
+    my $metadata = $body || {};
+
+    my $client = _build_client('CheckAvailability');
+
+    my $smart = XML::Smart->new;
+
+    $smart->{wrapper}->{inputXmlNode}->{input}->{schemaversionid} = '1';
+    $smart->{wrapper}->{inputXmlNode}->{input}->{xmlns} = '';
+
+    $smart->{wrapper}->{inputXmlNode}->{input}->{config}->{intendeduseid} = 1;
+    $smart->{wrapper}->{inputXmlNode}->{input}->{config}->{intendeduseid}->set_tag;
 
 
+    my @ill_requests = Koha::Illrequests->search({ batch_id => $metadata->{batch_id} })->as_list;
+
+    # For each request in this batch, add DOI to the XML payload
+    foreach my $ill_request(@ill_requests) {
+        my $issn = $ill_request->illrequestattributes->find({
+            illrequest_id => $ill_request->illrequest_id,
+            type          => "issn"
+        });
+        my $year = $ill_request->illrequestattributes->find({
+            illrequest_id => $ill_request->illrequest_id,
+            type          => "year"
+        });
+        my $sn = $issn->value;
+        $sn =~ s/[-]//;
+
+        if( $sn && $year ) {
+            my $payload_sn = {
+                sn      => $sn,
+                sn2     => "",
+                yr    => $year->value
+            };
+            push(@{$smart->{wrapper}->{inputXmlNode}->{input}->{citations}->{cit}} , $payload_sn) ;
+        }
+
+        # my $p1 = {
+        #     sn      => '10799796',
+        #     sn2     => '10960961',
+        #     yr    => '2016'
+        # };
+        # push(@{$smart->{wrapper}->{inputXmlNode}->{input}->{citations}->{cit}} , $p1) ;
+        
+        # my $p2 = {
+        #     sn      => '01791958',
+        #     sn2     => '14321262',
+        #     yr    => '2018'
+        # };
+        # push(@{$smart->{wrapper}->{inputXmlNode}->{input}->{citations}->{cit}} , $p2) ;
+
+        # my $p3 = {
+        #     sn      => '09609822',
+        #     sn2     => '18790445',
+        #     yr    => '2021'
+        # };
+        # push(@{$smart->{wrapper}->{inputXmlNode}->{input}->{citations}->{cit}} , $p3) ;
+}
+
+    my $dom = XML::LibXML->load_xml(string => $smart->data(noheader => 1, nometagen => 1));
+    my @nodes = $dom->findnodes('/wrapper/inputXmlNode');
+use Data::Dumper; $Data::Dumper::Maxdepth = 2;
+warn Dumper('ammo xml');
+warn Dumper($nodes[0]->serialize);
+    my $response = _make_request($client, { inputXmlNode => $nodes[0] }, 'CheckAvailabilityResponse');
+
+
+
+    my $code = scalar @{$response->{errors}} > 0 ? 500 : 200;
+
+    return $c->render(
+        status => $code,
+        openapi => $response
+    );
 }
 
 sub Account_GetIntendedUses {
@@ -411,6 +528,10 @@ sub _make_request {
 
     my $result = $response->{parameters} || {};
     my $errors = $response->{error} ? [ { message => $response->{error}->{reason} } ] : [];
+
+use Data::Dumper; $Data::Dumper::Maxdepth = 2;
+warn Dumper('ammo result is');
+warn Dumper($result);
 
     return {
         result => $result,
