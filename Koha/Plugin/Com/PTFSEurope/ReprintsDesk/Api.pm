@@ -304,7 +304,6 @@ sub ArticleShelf {
 
     my $plugin = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new();
     my $config = decode_json($plugin->retrieve_data("reprintsdesk_config") || {});
-    my $metadata = $body || {};
 
     my $client = _build_client('ArticleShelf_CheckAvailability');
 
@@ -313,9 +312,9 @@ sub ArticleShelf {
     $smart->{wrapper}->{inputXmlNode}->{input}->{schemaversionid} = '1';
     $smart->{wrapper}->{inputXmlNode}->{input}->{xmlns} = '';
 
-    my @ill_requests = Koha::Illrequests->search({ batch_id => $metadata->{batch_id} })->as_list;
+    my @ill_requests = Koha::Illrequests->search()->as_list;
 
-    # For each request in this batch, add DOI to the XML payload
+    # For each request, add DOI to the XML payload
     foreach my $ill_request(@ill_requests) {
         my $doi = $ill_request->illrequestattributes->find({
             illrequest_id => $ill_request->illrequest_id,
@@ -367,9 +366,11 @@ sub CheckAvailability {
     $smart->{wrapper}->{inputXmlNode}->{input}->{config}->{intendeduseid}->set_tag;
 
 
-    my @ill_requests = Koha::Illrequests->search({ batch_id => $metadata->{batch_id} })->as_list;
-
-    # For each request in this batch, add DOI to the XML payload
+    my @ill_requests = Koha::Illrequests->search()->as_list;
+    use Data::Dumper; $Data::Dumper::Maxdepth = 2;
+    warn Dumper('ammo requests');
+    warn Dumper(@ill_requests);
+    # For each request, add issn+year pair to the XML payload
     foreach my $ill_request(@ill_requests) {
         my $issn = $ill_request->illrequestattributes->find({
             illrequest_id => $ill_request->illrequest_id,
@@ -390,37 +391,57 @@ sub CheckAvailability {
             };
             push(@{$smart->{wrapper}->{inputXmlNode}->{input}->{citations}->{cit}} , $payload_sn) ;
         }
-
-        # my $p1 = {
-        #     sn      => '10799796',
-        #     sn2     => '10960961',
-        #     yr    => '2016'
-        # };
-        # push(@{$smart->{wrapper}->{inputXmlNode}->{input}->{citations}->{cit}} , $p1) ;
-        
-        # my $p2 = {
-        #     sn      => '01791958',
-        #     sn2     => '14321262',
-        #     yr    => '2018'
-        # };
-        # push(@{$smart->{wrapper}->{inputXmlNode}->{input}->{citations}->{cit}} , $p2) ;
-
-        # my $p3 = {
-        #     sn      => '09609822',
-        #     sn2     => '18790445',
-        #     yr    => '2021'
-        # };
-        # push(@{$smart->{wrapper}->{inputXmlNode}->{input}->{citations}->{cit}} , $p3) ;
-}
+    }
 
     my $dom = XML::LibXML->load_xml(string => $smart->data(noheader => 1, nometagen => 1));
     my @nodes = $dom->findnodes('/wrapper/inputXmlNode');
-use Data::Dumper; $Data::Dumper::Maxdepth = 2;
-warn Dumper('ammo xml');
-warn Dumper($nodes[0]->serialize);
+
     my $response = _make_request($client, { inputXmlNode => $nodes[0] }, 'CheckAvailabilityResponse');
 
+    my $code = scalar @{$response->{errors}} > 0 ? 500 : 200;
 
+    return $c->render(
+        status => $code,
+        openapi => $response
+    );
+}
+
+sub GetOrderHistory {
+    my $c = shift->openapi->valid_input or return;
+
+    my $body = $c->validation->param('body');
+
+    my $plugin = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new();
+    my $config = decode_json($plugin->retrieve_data("reprintsdesk_config") || {});
+    my $metadata = $body || {};
+
+    my $client = _build_client('User_GetOrderHistory');
+
+    # my $smart = XML::Smart->new;
+
+    # $smart->{typeID} = '1';
+    # $smart->{typeID}->set_tag;
+
+    # $smart->{orderTypeID} = '0';
+    # $smart->{orderTypeID}->set_tag;
+
+    # $smart->{filterTypeID} = '2';
+    # $smart->{filterTypeID}->set_tag;
+
+    # my $dom = XML::LibXML->load_xml(string => $smart->data(noheader => 1, nometagen => 1));
+    # my @nodes = $dom->findnodes('/root/*');
+
+    my $node_typeID = XML::LibXML::Element->new('typeID');
+    $node_typeID->appendText(1);
+
+    my $node_orderTypeID = XML::LibXML::Element->new('orderTypeID');
+    $node_orderTypeID->appendText(0);
+
+    my $node_filterTypeID = XML::LibXML::Element->new('filterTypeID');
+    $node_orderTypeID->appendText(2);
+
+    my $response = _make_request($client, { typeID => 1, orderTypeID => 0, filterTypeID => 2, userName => 'pedro.amorim@ptfs-europe.com' }, 'User_GetOrderHistoryResponse');
+    # my $response = _make_request($client, { $node_typeID, $node_orderTypeID, $node_filterTypeID }, 'User_GetOrderHistoryResponse');
 
     my $code = scalar @{$response->{errors}} > 0 ? 500 : 200;
 
@@ -506,7 +527,9 @@ sub _make_request {
     my $credentials = _get_credentials();
 
     my $to_send = {%{$req}, UserCredentials => {%{$credentials}}};
-
+use Data::Dumper; $Data::Dumper::Maxdepth = 2;
+warn Dumper('ammo to_send is');
+warn Dumper($to_send);
     # TODO: Below should be improved and moved into GetPriceEstimate2 after refractoring Smart into LibXML
     # This request is to get price estimate, API requires children to be in a specific order
     if ( $response_element eq 'Order_GetPriceEstimate2Response' ) {
@@ -531,7 +554,9 @@ sub _make_request {
 
 use Data::Dumper; $Data::Dumper::Maxdepth = 2;
 warn Dumper('ammo result is');
-warn Dumper($result);
+warn Dumper($to_send);
+warn Dumper($response);
+warn Dumper($trace);
 
     return {
         result => $result,
