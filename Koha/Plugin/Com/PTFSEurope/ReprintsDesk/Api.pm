@@ -367,9 +367,6 @@ sub CheckAvailability {
 
 
     my @ill_requests = Koha::Illrequests->search()->as_list;
-    use Data::Dumper; $Data::Dumper::Maxdepth = 2;
-    warn Dumper('ammo requests');
-    warn Dumper(@ill_requests);
     # For each request, add issn+year pair to the XML payload
     foreach my $ill_request(@ill_requests) {
         my $issn = $ill_request->illrequestattributes->find({
@@ -380,6 +377,7 @@ sub CheckAvailability {
             illrequest_id => $ill_request->illrequest_id,
             type          => "year"
         });
+        # TODO: This is throwing error if $issn undefined
         my $sn = $issn->value;
         $sn =~ s/[-]//;
 
