@@ -29,6 +29,10 @@ sub PlaceOrder2 {
 
     my $metadata = $body || {};
 
+use Data::Dumper; $Data::Dumper::Maxdepth = 2;
+warn Dumper('ammo metadata');
+warn Dumper($metadata);
+
     $metadata->{orderdetail}->{ordertypeid} = $config->{ordertypeid};
     $metadata->{orderdetail}->{deliverymethodid} = $config->{deliverymethodid};
     $metadata->{user}->{billingreference} = $config->{billingreference};
@@ -312,7 +316,8 @@ sub ArticleShelf {
     $smart->{wrapper}->{inputXmlNode}->{input}->{schemaversionid} = '1';
     $smart->{wrapper}->{inputXmlNode}->{input}->{xmlns} = '';
 
-    my @ill_requests = Koha::Illrequests->search()->as_list;
+    # TODO: This will cause the webservice to fail if returns > 50.
+    my @ill_requests = Koha::Illrequests->search( { status => 'NEW' } )->as_list;
 
     # For each request, add DOI to the XML payload
     foreach my $ill_request(@ill_requests) {
@@ -415,20 +420,6 @@ sub GetOrderHistory {
 
     my $client = _build_client('User_GetOrderHistory');
 
-    # my $smart = XML::Smart->new;
-
-    # $smart->{typeID} = '1';
-    # $smart->{typeID}->set_tag;
-
-    # $smart->{orderTypeID} = '0';
-    # $smart->{orderTypeID}->set_tag;
-
-    # $smart->{filterTypeID} = '2';
-    # $smart->{filterTypeID}->set_tag;
-
-    # my $dom = XML::LibXML->load_xml(string => $smart->data(noheader => 1, nometagen => 1));
-    # my @nodes = $dom->findnodes('/root/*');
-
     my $node_typeID = XML::LibXML::Element->new('typeID');
     $node_typeID->appendText(1);
 
@@ -438,8 +429,8 @@ sub GetOrderHistory {
     my $node_filterTypeID = XML::LibXML::Element->new('filterTypeID');
     $node_orderTypeID->appendText(2);
 
+    # TODO: Need to fix this userName, needs to come from config and also be used in PlaceOrder
     my $response = _make_request($client, { typeID => 1, orderTypeID => 0, filterTypeID => 2, userName => 'pedro.amorim@ptfs-europe.com' }, 'User_GetOrderHistoryResponse');
-    # my $response = _make_request($client, { $node_typeID, $node_orderTypeID, $node_filterTypeID }, 'User_GetOrderHistoryResponse');
 
     my $code = scalar @{$response->{errors}} > 0 ? 500 : 200;
 
@@ -525,9 +516,7 @@ sub _make_request {
     my $credentials = _get_credentials();
 
     my $to_send = {%{$req}, UserCredentials => {%{$credentials}}};
-use Data::Dumper; $Data::Dumper::Maxdepth = 2;
-warn Dumper('ammo to_send is');
-warn Dumper($to_send);
+
     # TODO: Below should be improved and moved into GetPriceEstimate2 after refractoring Smart into LibXML
     # This request is to get price estimate, API requires children to be in a specific order
     if ( $response_element eq 'Order_GetPriceEstimate2Response' ) {
