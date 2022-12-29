@@ -29,10 +29,6 @@ sub PlaceOrder2 {
 
     my $metadata = $body || {};
 
-use Data::Dumper; $Data::Dumper::Maxdepth = 2;
-warn Dumper('ammo metadata');
-warn Dumper($metadata);
-
     $metadata->{orderdetail}->{ordertypeid} = $config->{ordertypeid};
     $metadata->{orderdetail}->{deliverymethodid} = $config->{deliverymethodid};
     $metadata->{user}->{billingreference} = $config->{billingreference};
@@ -538,12 +534,6 @@ sub _make_request {
 
     my $result = $response->{parameters} || {};
     my $errors = $response->{error} ? [ { message => $response->{error}->{reason} } ] : [];
-
-use Data::Dumper; $Data::Dumper::Maxdepth = 2;
-warn Dumper('ammo result is');
-warn Dumper($to_send);
-warn Dumper($response);
-warn Dumper($trace);
 
     return {
         result => $result,
