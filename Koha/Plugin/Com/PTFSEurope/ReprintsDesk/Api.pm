@@ -32,6 +32,7 @@ sub PlaceOrder2 {
     $metadata->{orderdetail}->{ordertypeid} = $config->{ordertypeid};
     $metadata->{orderdetail}->{deliverymethodid} = $config->{deliverymethodid};
     $metadata->{user}->{billingreference} = $config->{billingreference};
+    $metadata->{user}->{username} = $config->{email};
 
     my $processinginstructions = _get_processing_instructions();
     $metadata->{processinginstructions} = ${$processinginstructions}[0];
@@ -64,7 +65,7 @@ sub PlaceOrder2 {
     # Some user fields may need completing with fallback values from the config
     # if the requesting borrower doesn't have them populated. username is annoying because
     # it needs to be populated with the email field, so we convey that here
-    my $check_populated_user = [ 'email', { 'username' => 'email' } ];
+    my $check_populated_user = [ 'email' ];
     # If the config says we should use borrower properties for deliveryprofile values
     # use as many as we can, these should have come in the payload
     my $metadata_user_error = _populate_missing_properties(
@@ -425,8 +426,7 @@ sub GetOrderHistory {
     my $node_filterTypeID = XML::LibXML::Element->new('filterTypeID');
     $node_orderTypeID->appendText(2);
 
-    # TODO: Need to fix this userName, needs to come from config and also be used in PlaceOrder
-    my $response = _make_request($client, { typeID => 1, orderTypeID => 0, filterTypeID => 2, userName => 'pedro.amorim@ptfs-europe.com' }, 'User_GetOrderHistoryResponse');
+    my $response = _make_request($client, { typeID => 1, orderTypeID => 0, filterTypeID => 2, userName => $config->{email} }, 'User_GetOrderHistoryResponse');
 
     my $code = scalar @{$response->{errors}} > 0 ? 500 : 200;
 
