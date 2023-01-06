@@ -103,38 +103,6 @@
                                 },
                                 "additionalProperties": false
                             },
-                            "user": {
-                                "type": "object",
-                                "properties": {
-                                    "username": {
-                                        "description": "User login name",
-                                        "type": "string",
-                                        "maxLength": 64
-                                    },
-                                    "email": {
-                                        "description": "Email address to send notifications regarding the order to. For example: order confirmation, and shipping notices.",
-                                        "type": "string",
-                                        "maxLength": 64
-                                    },
-                                    "firstname": {
-                                        "description": "User’s First Name",
-                                        "type": "string",
-                                        "maxLength": 50
-                                    },
-                                    "lastname": {
-                                        "description": "User’s Last Name",
-                                        "type": "string",
-                                        "maxLength": 50
-                                    },
-                                    "billingreference": {
-                                        "description": "Optional: Department Code / Cost Center.",
-                                        "type": "string",
-                                        "maxLength": 50
-                                    }
-                                },
-                                "additionalProperties": false,
-                                "required": ["username", "email", "firstname", "lastname"]
-                            },
                             "deliveryprofile": {
                                 "type": "object",
                                 "properties": {
@@ -209,7 +177,7 @@
                             }
                         },
                         "additionalProperties": false,
-                        "required": ["orderdetail", "user", "deliveryprofile" ]
+                        "required": ["orderdetail", "deliveryprofile" ]
                     }
                 }
             ],
