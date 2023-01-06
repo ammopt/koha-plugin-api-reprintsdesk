@@ -70,6 +70,23 @@
             <input id="reprintsdesk_password_input" class="required_input" placeholder="Enter password" type="text" name="password" value="[% config.password | html %]">
             <p>The password to be used for accessing the Reprints Desk API</p>
         </div>
+        <h4 class="section_header">User configuration</h4>
+        <div id="reprintsdesk_useremail" class="ill_config_field">
+            <label for="reprintsdesk_useremail_input">User e-mail address: </label>
+            <input id="reprintsdesk_useremail_input" class="required_input" placeholder="Enter e-mail address" type="text" name="useremail" value="[% config.useremail | html %]">
+            <p>The user e-mail address - This will be used as a catchall e-mail address to receive notifications regarding the order (order confirmation and shipping notices).</p>
+            <p>Will also be used as username for User_GetOrderHistory and /order/user/username + /order/user/email for Order_PlaceOrder2.</p>
+        </div>
+        <div id="reprintsdesk_userfirstname" class="ill_config_field">
+            <label for="reprintsdesk_userfirstname_input">User first name: </label>
+            <input id="reprintsdesk_userfirstname_input" class="required_input" placeholder="Enter user first name" type="text" name="userfirstname" value="[% config.userfirstname | html %]">
+            <p>The user's first name. Used in /order/user/firstname for Order_PlaceOrder2.</p>
+        </div>
+        <div id="reprintsdesk_userlastname" class="ill_config_field">
+            <label for="reprintsdesk_userlastname_input">User last name: </label>
+            <input id="reprintsdesk_userlastname_input" class="required_input" placeholder="Enter user last name" type="text" name="userlastname" value="[% config.userlastname | html %]">
+            <p>The user's last name. Used in /order/user/lastname for Order_PlaceOrder2.</p>
+        </div>
         <h4 class="section_header">Order configuration</h4>
         <div id="reprintsdesk_ordertypeid" class="ill_config_field">
             <label for="reprintsdesk_ordertypeid_input">Order type ID: </label>
@@ -154,7 +171,7 @@
                     <input id="reprintsdesk_processinginstructions_value_[% processinginstructions_size %]" class="processing_instruction_value" placeholder="Enter processing instruction value" type="text" name="processinginstructions_value_[% processinginstructions_size %]" value="">
                 </div>
             </div>
-            <p>The will be supplied by Reprints Desk as ID and value pairs and should be entered here. To delete an instruction, remove its value</p>
+            <p>These will be supplied by Reprints Desk as ID and value pairs and should be entered here. To delete an instruction, remove its value</p>
         </div>
         <h4 class="section_header">Customer references</h4>
         <div id="reprintsdesk_customerreferences" class="ill_config_field">

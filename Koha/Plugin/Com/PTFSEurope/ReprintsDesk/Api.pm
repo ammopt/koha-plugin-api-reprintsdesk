@@ -31,7 +31,12 @@ sub PlaceOrder2 {
 
     $metadata->{orderdetail}->{ordertypeid} = $config->{ordertypeid};
     $metadata->{orderdetail}->{deliverymethodid} = $config->{deliverymethodid};
+
     $metadata->{user}->{billingreference} = $config->{billingreference};
+    $metadata->{user}->{username} = $config->{useremail};
+    $metadata->{user}->{email} = $config->{useremail};
+    $metadata->{user}->{firstname} = $config->{userfirstname};
+    $metadata->{user}->{lastname} = $config->{userlastname};
 
     my $processinginstructions = _get_processing_instructions();
     $metadata->{processinginstructions} = ${$processinginstructions}[0];
