@@ -46,33 +46,25 @@ sub PlaceOrder2 {
 
     # Some deliveryprofile fields may need completing with fallback values from the config
     # if the requesting borrower doesn't have them populated.
-    my $check_populated_delivery_profile = [ 'address1', 'city', 'zip', 'phone', 'email' ];
+    my $check_populated_delivery_profile = [ 'address1', 'city', 'zip', 'phone', 'email', 'firstname', 'lastname' ];
     # If the config says we should use borrower properties for deliveryprofile values
     # use as many as we can, these should have come in the payload
-    _populate_missing_properties(
-        $c,
+    my $metadata_deliveryprofile_error = _populate_missing_properties(
         $metadata,
         $config,
         $check_populated_delivery_profile,
-        'deliveryprofile',
-        'Missing deliveryprofile data required to place a request'
+        'deliveryprofile'
     );
 
-    # Some user fields may need completing with fallback values from the config
-    # if the requesting borrower doesn't have them populated. username is annoying because
-    # it needs to be populated with the email field, so we convey that here
-    my $check_populated_user = [ 'email', { 'username' => 'email' } ];
-    # If the config says we should use borrower properties for deliveryprofile values
-    # use as many as we can, these should have come in the payload
-    _populate_missing_properties(
-        $c,
-        $metadata,
-        $config,
-        $check_populated_user,
-        'user',
-        'Missing user data required to place a request'
-    );
-
+    if($metadata_deliveryprofile_error){
+        return $c->render(
+            status => 400,
+            openapi => {
+                result => {},
+                errors => [ { message => "Missing deliveryprofile data required to place a request: ". $metadata_deliveryprofile_error } ]
+            }
+        );
+    }
 
     # Manually check statename & statecode since they need special treatment depending on
     # countrycode
@@ -234,7 +226,7 @@ sub Test_Credentials {
 
 
 sub _populate_missing_properties {
-    my ($c, $metadata, $config, $check_populated, $section, $error) = @_;
+    my ($metadata, $config, $check_populated, $section) = @_;
 
     for my $element(@{$check_populated}) {
         # We may be dealing with a single element anonymous hash, in which case,
@@ -257,14 +249,8 @@ sub _populate_missing_properties {
                     # The config has the required value
                     $metadata->{$section}->{$metadata_name} = $config->{$config_name};
                 } else {
-                    # Neither the borrower or the config have the required value
-                    return $c->render(
-                        status => 400,
-                        openapi => {
-                            result => {},
-                            errors => [ { message => "$error: $metadata_name" } ]
-                        }
-                    );
+                    # Neither the borrower or the config have the required value, return for error handling
+                    return $metadata_name;
                 }
             }
         } else {
@@ -272,14 +258,8 @@ sub _populate_missing_properties {
                 # The config has the required value
                 $metadata->{$section}->{$metadata_name} = $config->{$config_name};
             } else {
-                # The config does not have the required value
-                return $c->render(
-                    status => 400,
-                    openapi => {
-                        result => {},
-                        errors => [ { message => "$error $metadata_name" } ]
-                    }
-                );
+                # The config does not have the required value, return for error handling
+                return $metadata_name;
             }
         }
     }
