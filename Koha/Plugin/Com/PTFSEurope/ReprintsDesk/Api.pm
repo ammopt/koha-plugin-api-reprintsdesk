@@ -32,7 +32,8 @@ sub PlaceOrder2 {
     $metadata->{orderdetail}->{ordertypeid} = $config->{ordertypeid};
     $metadata->{orderdetail}->{deliverymethodid} = $config->{deliverymethodid};
     $metadata->{user}->{billingreference} = $config->{billingreference};
-    $metadata->{user}->{username} = $config->{email};
+    $metadata->{user}->{username} = $config->{catchallemail};
+    $metadata->{user}->{email} = $config->{catchallemail};
 
     my $processinginstructions = _get_processing_instructions();
     $metadata->{processinginstructions} = ${$processinginstructions}[0];
@@ -58,29 +59,6 @@ sub PlaceOrder2 {
             openapi => {
                 result => {},
                 errors => [ { message => "Missing deliveryprofile data required to place a request: ". $metadata_deliveryprofile_error } ]
-            }
-        );
-    }
-
-    # Some user fields may need completing with fallback values from the config
-    # if the requesting borrower doesn't have them populated. username is annoying because
-    # it needs to be populated with the email field, so we convey that here
-    my $check_populated_user = [ 'email' ];
-    # If the config says we should use borrower properties for deliveryprofile values
-    # use as many as we can, these should have come in the payload
-    my $metadata_user_error = _populate_missing_properties(
-        $metadata,
-        $config,
-        $check_populated_user,
-        'user'
-    );
-
-    if($metadata_user_error){
-        return $c->render(
-            status => 400,
-            openapi => {
-                result => {},
-                errors => [ { message => "Missing user data required to place a request: ". $metadata_user_error } ]
             }
         );
     }
@@ -426,7 +404,7 @@ sub GetOrderHistory {
     my $node_filterTypeID = XML::LibXML::Element->new('filterTypeID');
     $node_orderTypeID->appendText(2);
 
-    my $response = _make_request($client, { typeID => 1, orderTypeID => 0, filterTypeID => 2, userName => $config->{email} }, 'User_GetOrderHistoryResponse');
+    my $response = _make_request($client, { typeID => 1, orderTypeID => 0, filterTypeID => 2, userName => $config->{catchallemail} }, 'User_GetOrderHistoryResponse');
 
     my $code = scalar @{$response->{errors}} > 0 ? 500 : 200;
 

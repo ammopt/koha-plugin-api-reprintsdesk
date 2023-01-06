@@ -70,6 +70,13 @@
             <input id="reprintsdesk_password_input" class="required_input" placeholder="Enter password" type="text" name="password" value="[% config.password | html %]">
             <p>The password to be used for accessing the Reprints Desk API</p>
         </div>
+        <h4 class="section_header">Catchall e-mail</h4>
+        <div id="reprintsdesk_catchallemail" class="ill_config_field">
+            <label for="reprintsdesk_catchallemail_input">E-mail address: </label>
+            <input id="reprintsdesk_catchallemail_input" class="required_input" placeholder="Enter e-mail address" type="text" name="catchallemail" value="[% config.catchallemail | html %]">
+            <p>The Catchall e-mail address - This will be used to receive notifications regarding the order (order confirmation and shipping notices).</p>
+            <p>This will be used as username for User_GetOrderHistory and /order/user/username + /order/user/email for Order_PlaceOrder2  </p>
+        </div>
         <h4 class="section_header">Order configuration</h4>
         <div id="reprintsdesk_ordertypeid" class="ill_config_field">
             <label for="reprintsdesk_ordertypeid_input">Order type ID: </label>
@@ -154,7 +161,7 @@
                     <input id="reprintsdesk_processinginstructions_value_[% processinginstructions_size %]" class="processing_instruction_value" placeholder="Enter processing instruction value" type="text" name="processinginstructions_value_[% processinginstructions_size %]" value="">
                 </div>
             </div>
-            <p>The will be supplied by Reprints Desk as ID and value pairs and should be entered here. To delete an instruction, remove its value</p>
+            <p>These will be supplied by Reprints Desk as ID and value pairs and should be entered here. To delete an instruction, remove its value</p>
         </div>
         <h4 class="section_header">Customer references</h4>
         <div id="reprintsdesk_customerreferences" class="ill_config_field">
