@@ -32,8 +32,10 @@ sub PlaceOrder2 {
     $metadata->{orderdetail}->{ordertypeid} = $config->{ordertypeid};
     $metadata->{orderdetail}->{deliverymethodid} = $config->{deliverymethodid};
     $metadata->{user}->{billingreference} = $config->{billingreference};
-    $metadata->{user}->{username} = $config->{catchallemail};
-    $metadata->{user}->{email} = $config->{catchallemail};
+    $metadata->{user}->{username} = $config->{useremail};
+    $metadata->{user}->{email} = $config->{useremail};
+    $metadata->{user}->{firstname} = $config->{userfirstname};
+    $metadata->{user}->{lastname} = $config->{userlastname};
 
     my $processinginstructions = _get_processing_instructions();
     $metadata->{processinginstructions} = ${$processinginstructions}[0];
@@ -404,7 +406,7 @@ sub GetOrderHistory {
     my $node_filterTypeID = XML::LibXML::Element->new('filterTypeID');
     $node_orderTypeID->appendText(2);
 
-    my $response = _make_request($client, { typeID => 1, orderTypeID => 0, filterTypeID => 2, userName => $config->{catchallemail} }, 'User_GetOrderHistoryResponse');
+    my $response = _make_request($client, { typeID => 1, orderTypeID => 0, filterTypeID => 2, userName => $config->{useremail} }, 'User_GetOrderHistoryResponse');
 
     my $code = scalar @{$response->{errors}} > 0 ? 500 : 200;
 
