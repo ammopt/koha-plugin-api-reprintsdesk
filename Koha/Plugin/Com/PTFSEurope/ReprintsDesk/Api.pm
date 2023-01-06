@@ -178,6 +178,26 @@ sub PlaceOrder2 {
     );
 }
 
+sub GetOrderHistory {
+    my $c = shift->openapi->valid_input or return;
+
+    my $body = $c->validation->param('body');
+
+    my $plugin = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new();
+    my $config = decode_json($plugin->retrieve_data("reprintsdesk_config") || {});
+    my $metadata = $body || {};
+
+    my $client = _build_client('User_GetOrderHistory');
+
+    my $response = _make_request($client, { typeID => 1, orderTypeID => 0, filterTypeID => 2, userName => $config->{useremail} }, 'User_GetOrderHistoryResponse');
+
+    my $code = scalar @{$response->{errors}} > 0 ? 500 : 200;
+
+    return $c->render(
+        status => $code,
+        openapi => $response
+    );
+}
 
 sub Account_GetIntendedUses {
     my $c = shift->openapi->valid_input or return;

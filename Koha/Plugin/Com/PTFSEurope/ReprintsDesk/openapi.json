@@ -223,6 +223,22 @@
             }
         }
     },
+    "/getorderhistory": {
+        "post": {
+            "x-mojo-to": "Com::PTFSEurope::ReprintsDesk::Api#GetOrderHistory",
+            "operationId": "ApiReprintsDeskILLGetOrderHistory",
+            "tags": ["reprintsdesk", "getorderhistory"],
+            "parameters": [],
+            "produces": [
+                "application/json"
+            ],
+            "responses": {
+                "200": {
+                    "description": "The result of the getorderhistory call"
+                }
+            }
+        }
+    },
     "/account_getintendeduses": {
         "get": {
             "x-mojo-to": "Com::PTFSEurope::ReprintsDesk::Api#Account_GetIntendedUses",
