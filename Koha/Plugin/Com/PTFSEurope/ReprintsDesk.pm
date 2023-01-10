@@ -8,8 +8,6 @@ use Koha::DateUtils qw( dt_from_string );
 use File::Basename qw( dirname );
 use Cwd qw(abs_path);
 use CGI;
-use LWP::UserAgent;
-use HTTP::Request;
 use JSON qw( encode_json decode_json );
 
 our $VERSION = "1.0.0";
