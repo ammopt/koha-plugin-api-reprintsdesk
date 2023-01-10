@@ -186,7 +186,7 @@ sub GetOrderHistory {
 
     my $client = _build_client('User_GetOrderHistory');
 
-    my $response = _make_request($client, { typeID => 1, orderTypeID => 0, filterTypeID => 2, userName => $config->{useremail} }, 'User_GetOrderHistoryResponse');
+    my $response = _make_request($client, { typeID => 1, orderTypeID => 0, filterTypeID => $metadata->{filterTypeID}, userName => $config->{useremail} }, 'User_GetOrderHistoryResponse');
 
     my $code = scalar @{$response->{errors}} > 0 ? 500 : 200;
 
