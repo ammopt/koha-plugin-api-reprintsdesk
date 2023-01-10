@@ -288,7 +288,7 @@ sub _make_request {
 sub _build_client {
     my ($operation) = @_;
 
-    open my $wsdl_fh, "<", dirname(__FILE__) . "/reprintsdesk.wsdl" || die "Can't open file $!";
+    open( my $wsdl_fh, "<", dirname(__FILE__) . "/" . _get_environment() . "_reprintsdesk.wsdl") || die "Can't open file $!";
     my $wsdl_file = do { local $/; <$wsdl_fh> };
     my $wsdl = XML::Compile::WSDL11->new(
         $wsdl_file,
@@ -351,6 +351,13 @@ sub _get_customer_references {
     }
 
     return \@customerreferences;
+}
+
+sub _get_environment {
+    my $plugin = Koha::Plugin::Com::PTFSEurope::ReprintsDesk->new();
+    my $config = decode_json($plugin->retrieve_data("reprintsdesk_config") || {});
+
+    return $config->{environment};
 }
 
 1;
