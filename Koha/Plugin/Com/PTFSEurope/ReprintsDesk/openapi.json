@@ -196,7 +196,26 @@
             "x-mojo-to": "Com::PTFSEurope::ReprintsDesk::Api#GetOrderHistory",
             "operationId": "ApiReprintsDeskILLGetOrderHistory",
             "tags": ["reprintsdesk", "getorderhistory"],
-            "parameters": [],
+            "parameters": [
+                {
+                    "name": "body",
+                    "in": "body",
+                    "description": "The request payload containing filterTypeID",
+                    "required": true,
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "filterTypeID": {
+                                "type": "integer",
+                                "description": "The filterTypeID for User_GetOrderHistory. 1 = open only; 2 = all orders",
+                                "additionalProperties": false
+                            }
+                        },
+                        "additionalProperties": false,
+                        "required": [ "filterTypeID" ]
+                    }
+                }
+            ],
             "produces": [
                 "application/json"
             ],
