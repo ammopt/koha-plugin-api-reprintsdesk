@@ -82,7 +82,6 @@ sub configure {
         my $hashed = { map { $_ => (scalar $cgi->param($_))[0] } $cgi->param };
         my $p = {};
 
-        $p->{use_borrower_details} = (exists $hashed->{use_borrower_details}) ? 1 : 0;
 
         my $processinginstructions = {};
         foreach my $key (keys %{$hashed}) {
@@ -130,6 +129,9 @@ sub configure {
                 $customerreferences->{$1} = $hashed->{"customerreferences_id_$1"} . ":" . $hashed->{"customerreferences_value_$1"};
             }
         }
+
+        $p->{use_borrower_details} =
+            ( exists $hashed->{use_borrower_details} ) ? 1 : 0;
 
         # If we have any customer references to store, add them to our hash
         # Note we sort the keys here so they will remain in a predictable order
